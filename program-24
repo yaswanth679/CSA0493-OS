@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define SIZE 100
+
+// Function to sort an array using bubble sort
+void bubbleSort(int arr[], int n) {
+    for (int i = 0; i < n-1; i++)
+        for (int j = 0; j < n-i-1; j++)
+            if (arr[j] > arr[j+1]) {
+                // swap arr[j] and arr[j+1]
+                int temp = arr[j];
+                arr[j] = arr[j+1];
+                arr[j+1] = temp;
+            }
+}
+
+// Function to perform C-SCAN disk scheduling
+void cscan(int arr[], int head, int size, int disk_size) {
+    bubbleSort(arr, size);  // Sort the requests using bubble sort
+    
+    int distance = 0;       // Variable to store total head movement
+    int current = 0;        // Variable to store current head position
+    int direction = 1;      // Variable to indicate direction (1 for right, -1 for left)
+
+    // Find the position of the head in the sorted array
+    for (int i = 0; i < size; i++) {
+        if (arr[i] >= head) {
+            current = i;
+            break;
+        }
+    }
+
+    // Move the head to the end in the direction of the request queue
+    for (int i = current; i < size; i++) {
+        distance += abs(arr[i] - head);
+        head = arr[i];
+    }
+
+    // Move the head to the end in the opposite direction
+    distance += (disk_size - head);
+    head = 0;
+
+    // Move the head back to the beginning in the direction of the request queue
+    for (int i = 0; i < current; i++) {
+        distance += abs(arr[i] - head);
+        head = arr[i];
+    }
+
+    printf("Total head movement: %d\n", distance);
+}
+
+int main() {
+    int disk_size, head, size;
+    
+    printf("Enter the size of the disk: ");
+    scanf("%d", &disk_size);
+
+    printf("Enter the initial position of the head: ");
+    scanf("%d", &head);
+
+    printf("Enter the number of requests: ");
+    scanf("%d", &size);
+
+    int requests[SIZE];
+
+    printf("Enter the disk requests: ");
+    for (int i = 0; i < size; i++) {
+        scanf("%d", &requests[i]);
+    }
+
+    cscan(requests, head, size, disk_size);
+
+    return 0;
+}
