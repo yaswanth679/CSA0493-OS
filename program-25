@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+void displayPermissions(mode_t mode) {
+    printf("File Permissions: ");
+
+    // Owner's permissions
+    printf((mode & S_IRUSR) ? "r" : "-");
+    printf((mode & S_IWUSR) ? "w" : "-");
+    printf((mode & S_IXUSR) ? "x" : "-");
+
+    // Group's permissions
+    // printf((mode & S_IRGRP) ? "r" : "-");
+    // printf((mode & S_IWGRP) ? "w" : "-");
+    // printf((mode & S_IXGRP) ? "x" : "-");
+
+    // Others' permissions
+    // printf((mode & S_IROTH) ? "r" : "-");
+   //  printf((mode & S_IWOTH) ? "w" : "-");
+  // printf((mode & S_IXOTH) ? "x" : "-");
+
+    printf("\n");
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+        return 1;
+    }
+
+    const char *filename = argv[1];
+    struct stat fileStat;
+
+    if (stat(filename, &fileStat) == -1) {
+        perror("Error in stat");
+        return 1;
+    }
+
+    displayPermissions(fileStat.st_mode);
+
+    return 0;
+}
