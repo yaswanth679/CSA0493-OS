@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <pthread.h>
+
+void *printMessage(void *arg) {
+    char *message = (char *)arg;
+    printf("%s\n", message);
+
+    pthread_t tid = pthread_self();
+    printf("Thread ID inside function: %lu\n", (unsigned long)tid);
+
+    pthread_exit((void *)42);
+}
+
+int main() {
+    pthread_t thread;
+    char *message = "Hello, from the created thread!";
+    void *returnValue;
+
+    if (pthread_create(&thread, NULL, printMessage, (void *)message) != 0) {
+        fprintf(stderr, "Error creating thread\n");
+        return 1;
+    }
+
+    if (pthread_join(thread, &returnValue) != 0) {
+        fprintf(stderr, "Error joining thread\n");
+        return 1;
+    }
+
+    printf("Thread joined successfully with return value: %d\n", (int)returnValue);
+
+    pthread_t mainThreadID = pthread_self();
+    if (pthread_equal(mainThreadID, thread)) {
+        printf("Main thread and created thread IDs are equal\n");
+    } else {
+        printf("Main thread and created thread IDs are not equal\n");
+    }
+
+    pthread_exit(NULL);
+}
