@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+// Shared data
+int sharedCounter = 0;
+pthread_mutex_t mutex; // Mutex lock
+
+// Function executed by the threads
+void *threadFunction(void *arg) {
+    int threadId = *(int *)arg;
+
+    for (int i = 0; i < 5; i++) {
+        // Acquire the lock before entering the critical section
+        pthread_mutex_lock(&mutex);
+
+        // Critical section
+        sharedCounter++;
+        printf("Thread %d: Incremented Counter to %d\n", threadId, sharedCounter);
+
+        // Release the lock after exiting the critical section
+        pthread_mutex_unlock(&mutex);
+
+        // Sleep to simulate some processing time
+        usleep(100000);
+    }
+
+    pthread_exit(NULL);
+}
+
+int main() {
+    // Initialize the mutex
+    if (pthread_mutex_init(&mutex, NULL) != 0) {
+        perror("Mutex initialization failed");
+        exit(EXIT_FAILURE);
+    }
+
+    pthread_t thread1, thread2;
+    int id1 = 1, id2 = 2;
+
+    // Create two threads
+    if (pthread_create(&thread1, NULL, threadFunction, &id1) != 0 ||
+        pthread_create(&thread2, NULL, threadFunction, &id2) != 0) {
+        perror("Thread creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    // Wait for threads to finish
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+
+    // Destroy the mutex
+    pthread_mutex_destroy(&mutex);
+
+    return 0;
+}
