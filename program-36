@@ -1,0 +1,39 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+
+void listDirectory(const char *dirname) {
+    DIR *dir = opendir(dirname);
+
+    if (dir == NULL) {
+        perror("Error opening directory");
+        exit(EXIT_FAILURE);
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        printf("%s\n", entry->d_name);
+    }
+
+    closedir(dir);
+}
+
+int main(int argc, char *argv[]) {
+    const char *dirname;
+
+    if (argc == 1) {
+        // No directory provided, list the current directory
+        dirname = ".";
+    } else if (argc == 2) {
+        // Directory provided as a command-line argument
+        dirname = argv[1];
+    } else {
+        // Incorrect usage
+        fprintf(stderr, "Usage: %s [directory]\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    listDirectory(dirname);
+
+    return 0;
+}
