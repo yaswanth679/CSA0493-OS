@@ -1,0 +1,81 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <string.h>
+
+void createAndWriteToFile(const char *filename, const char *content) {
+    // Open the file for writing, create if it doesn't exist
+    int fileDescriptor = open(filename, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    
+    if (fileDescriptor == -1) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+    // Write content to the file
+    write(fileDescriptor, content, strlen(content));
+
+    // Close the file
+    close(fileDescriptor);
+}
+
+void readFromFile(const char *filename) {
+    // Open the file for reading
+    int fileDescriptor = open(filename, O_RDONLY);
+
+    if (fileDescriptor == -1) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+    // Read and display the content of the file
+    char buffer[100];
+    int bytesRead = read(fileDescriptor, buffer, sizeof(buffer));
+
+    if (bytesRead == -1) {
+        perror("Error reading from file");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("File content: %.*s\n", bytesRead, buffer);
+
+    // Close the file
+    close(fileDescriptor);
+}
+
+void appendToFile(const char *filename, const char *content) {
+    // Open the file for appending
+    int fileDescriptor = open(filename, O_WRONLY | O_APPEND);
+
+    if (fileDescriptor == -1) {
+        perror("Error opening file");
+        exit(EXIT_FAILURE);
+    }
+
+    // Append content to the file
+    write(fileDescriptor, content, strlen(content));
+
+    // Close the file
+    close(fileDescriptor);
+}
+
+int main() {
+    const char *filename = "example_file.txt";
+    const char *content1 = "Hello, World!\n";
+    const char *content2 = "This is a new line.\n";
+
+    // Create and write to file
+    createAndWriteToFile(filename, content1);
+
+    // Read from file
+    readFromFile(filename);
+
+    // Append to file
+    appendToFile(filename, content2);
+
+    // Read again after appending
+    readFromFile(filename);
+
+    return 0;
+}
