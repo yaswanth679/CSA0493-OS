@@ -1,0 +1,113 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define MAX_BLOCKS 100
+
+struct Block {
+    int size;
+    int allocated; // 1 if allocated, 0 if free
+    int process_id; // -1 if free
+};
+
+void initializeMemory(struct Block memory[], int size) {
+    for (int i = 0; i < size; i++) {
+        memory[i].size = 0;
+        memory[i].allocated = 0;
+        memory[i].process_id = -1;
+    }
+}
+
+void displayMemory(struct Block memory[], int size) {
+    printf("\nMemory Status:\n");
+    for (int i = 0; i < size; i++) {
+        printf("| Block %d - Size: %d - Allocated: %d - Process ID: %d |\n",
+               i, memory[i].size, memory[i].allocated, memory[i].process_id);
+    }
+    printf("\n");
+}
+
+int firstFit(struct Block memory[], int size, int processSize, int processId) {
+    for (int i = 0; i < size; i++) {
+        if (!memory[i].allocated && memory[i].size >= processSize) {
+            memory[i].allocated = 1;
+            memory[i].process_id = processId;
+            return i;
+        }
+    }
+    return -1; // Unable to allocate
+}
+
+void deallocate(struct Block memory[], int size, int processId) {
+    for (int i = 0; i < size; i++) {
+        if (memory[i].process_id == processId) {
+            memory[i].allocated = 0;
+            memory[i].process_id = -1;
+        }
+    }
+}
+
+int main() {
+    int memorySize;
+    printf("Enter the size of memory: ");
+    scanf("%d", &memorySize);
+
+    struct Block memory[memorySize];
+
+    initializeMemory(memory, memorySize);
+
+    int choice;
+    do {
+        printf("\nMemory Allocation (First Fit):\n");
+        printf("1. Allocate Process\n");
+        printf("2. Deallocate Process\n");
+        printf("3. Display Memory\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1: {
+                int processId, processSize;
+                printf("Enter Process ID: ");
+                scanf("%d", &processId);
+                printf("Enter Process Size: ");
+                scanf("%d", &processSize);
+
+                int index = firstFit(memory, memorySize, processSize, processId);
+
+                if (index != -1) {
+                    printf("Memory allocated successfully.\n");
+                } else {
+                    printf("Memory allocation failed. Not enough space.\n");
+                }
+
+                displayMemory(memory, memorySize);
+                break;
+            }
+
+            case 2: {
+                int processId;
+                printf("Enter Process ID to deallocate: ");
+                scanf("%d", &processId);
+
+                deallocate(memory, memorySize, processId);
+                printf("Memory deallocated successfully.\n");
+
+                displayMemory(memory, memorySize);
+                break;
+            }
+
+            case 3:
+                displayMemory(memory, memorySize);
+                break;
+
+            case 4:
+                break;
+
+            default:
+                printf("Invalid choice. Please enter a valid option.\n");
+        }
+    } while (choice != 4);
+
+    return 0;
+}
